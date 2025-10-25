@@ -2,7 +2,7 @@ import express from "express";
 const app = express();
 import dotenv from "dotenv";
 import path from "path";
-dotenv.config({ path: path.resolve(__dirname, "../.env") });
+dotenv.config({ path: path.resolve(__dirname, "../.env.local") });
 
 import WebSocket, { WebSocketServer } from "ws";
 
