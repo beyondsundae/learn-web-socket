@@ -5,8 +5,10 @@ services:
       context: ./server
       dockerfile: Dockerfile
     container_name: learn-ws-server
-    ports:
-      - "8081:8081"
+    expose:
+      - "8081"
+    # ports:
+    #   - "8081:8081"
     env_file:
       - ./server/.env.production
     restart: always
@@ -16,16 +18,17 @@ services:
       context: ./web
       dockerfile: Dockerfile
     container_name: learn-ws-web
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000" 
+    # ports:
+    #   - "3000:3000"
     env_file:
       - ./web/.env.production
     restart: always
     depends_on:
       - server
 
-
-nginx:
+  nginx:
     image: nginx:alpine
     ports:
       - "80:80"
