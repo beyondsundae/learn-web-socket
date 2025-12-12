@@ -37,3 +37,4 @@ services:
     depends_on:
       - web
       - server
+    restart: always
