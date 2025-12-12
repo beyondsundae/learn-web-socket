@@ -1,6 +1,6 @@
 import { Progress } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-const ws = new WebSocket(process.env.NEXT_PUBLIC_WS_URL);
+// const ws = new WebSocket("ws://" + window.location.host + "/ws/")
 
 import { v4 as uuidv4 } from "uuid";
 
@@ -19,17 +19,35 @@ export default function Child() {
   const [history, setHistory] = useState<History[]>([]);
   const [cooldown, setCooldown] = useState(0);
 
+  const ws = useRef(null);
+
   /* -------------------------------- varialbes ------------------------------- */
-  const isDisabled = ws.readyState === 0 || cooldown > 0;
+  const isDisabled = ws?.current?.readyState === 0 || cooldown > 0;
+
+  useEffect(() => {
+    // Connect to your WebSocket server URL (ws:// or wss://)
+    ws.current = new WebSocket("ws://" + window.location.hostname + '/ws/'); // Or ws://localhost:port
+
+    ws.current.onopen = () => {
+      console.log('Connection opened');
+    };
+
+    ws.current.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      setHistory((prevMessages) => [...prevMessages, data]);
+    };
+
+    ws.current.onclose = () => {
+      console.log('Connection closed');
+    };
+
+    // Cleanup function to close the connection when the component unmounts
+    return () => {
+      ws.current.close();
+    };
+  }, []);
 
   /* --------------------------- web socket instance -------------------------- */
-  ws.onmessage = (event) => {
-    setHistory((prev) => [...prev, JSON.parse(event?.data)]);
-  };
-
-  ws.onclose = () => {
-    console.log("Disconnected from server");
-  };
 
   /* -------------------------------- functions ------------------------------- */
   const cooldownFn = () => {
@@ -47,11 +65,7 @@ export default function Child() {
   };
 
   /* -------------------------------- useEffect ------------------------------- */ 
-  useEffect(() => {
-    ws.onopen = () => {
-      console.log("Connected to server");
-    };
-  }, [ws]) 
+
 
   return (
     <div>
@@ -72,7 +86,7 @@ export default function Child() {
         onClick={() => {
           if (!value) return;
 
-          ws.send(`${JSON.stringify({ user: currentUser, value })}`);
+          ws?.current?.send(`${JSON.stringify({ user: currentUser, value })}`);
           cooldownFn();
 
           setValue("");

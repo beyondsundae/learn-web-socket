@@ -15,7 +15,7 @@ const serverNode = http.createServer((req, res) => {
   // Send the response body
   res.end("Server running");
 });
-serverNode.listen(process.env.PORT, () => {
+serverNode.listen(process.env.PORT as any, "0.0.0.0", () => {
   console.log(`Server running at http://localhost:${process.env.PORT}/`);
 });
 
